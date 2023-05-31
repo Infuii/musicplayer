@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactAudioPlayer from "react-audio-player";
 import { signIn, useSession } from "next-auth/react";
+import { api } from "~/utils/api";
 
 type Track = {
   title: string;
@@ -18,9 +19,18 @@ const Home = () => {
 
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(-1);
   const [playlist, setPlaylist] = useState<Track[]>([] as Track[]);
+  const [filteredPlaylist, setFilteredPlaylist] = useState<Track[]>(
+    [] as Track[]
+  );
   const [playerReady, setPlayerReady] = useState<boolean>(false);
   const [loop, setLoop] = useState<boolean>(false);
   const { data: session } = useSession();
+
+  const { data: user } = api.user.getUserById.useQuery({
+    id: "cli6imzxr0000zpqezos3vidm",
+  });
+
+  console.log(user);
 
   useEffect(() => {
     const filteredPlaylist = playlist.reduce((acc: Track[], current: Track) => {
@@ -28,11 +38,8 @@ const Home = () => {
         ? acc.concat([current])
         : acc;
     }, []);
-    setPlaylist(filteredPlaylist);
-    if (playlist.length > 0 && currentTrackIndex === -1) {
-      setCurrentTrackIndex(0);
-    }
-  }, [currentTrackIndex, playlist]);
+    setFilteredPlaylist(filteredPlaylist);
+  }, [playlist]);
 
   const handleAudioEnded = () => {
     if (loop) {
@@ -41,7 +48,7 @@ const Home = () => {
 
     setCurrentTrackIndex((prevIndex) => {
       const nextIndex = prevIndex + 1;
-      if (nextIndex < playlist.length) {
+      if (nextIndex < filteredPlaylist.length) {
         return nextIndex;
       } else {
         return 0;
@@ -55,7 +62,7 @@ const Home = () => {
       if (nextIndex >= 0) {
         return nextIndex;
       } else {
-        return playlist.length - 1;
+        return filteredPlaylist.length - 1;
       }
     });
   };
@@ -173,7 +180,7 @@ const Home = () => {
       </ul>
       <br />
       <ul>
-        {playlist.map((track, index) => (
+        {filteredPlaylist.map((track, index) => (
           <li key={index}>
             <button
               className={
