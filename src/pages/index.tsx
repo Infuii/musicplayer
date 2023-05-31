@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReactAudioPlayer from "react-audio-player";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 type Track = {
   title: string;
@@ -8,7 +8,7 @@ type Track = {
 };
 
 const Home = () => {
-  const [music, setMusic] = useState<Track[]>([
+  const [music] = useState<Track[]>([
     { title: "Heroes", src: "./heroes.mp3" },
     { title: "On", src: "./on.mp3" },
     { title: "Hellcat", src: "./hellcat.mp3" },
@@ -20,11 +20,11 @@ const Home = () => {
   const [playlist, setPlaylist] = useState<Track[]>([] as Track[]);
   const [playerReady, setPlayerReady] = useState<boolean>(false);
   const [loop, setLoop] = useState<boolean>(false);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   useEffect(() => {
-    const filteredPlaylist = playlist.reduce((acc, current) => {
-      return !acc.find((item) => item.src === current.src)
+    const filteredPlaylist = playlist.reduce((acc: Track[], current: Track) => {
+      return !acc.find((item: Track) => item.src === current.src)
         ? acc.concat([current])
         : acc;
     }, []);
@@ -32,7 +32,7 @@ const Home = () => {
     if (playlist.length > 0 && currentTrackIndex === -1) {
       setCurrentTrackIndex(0);
     }
-  }, [playlist]);
+  }, [currentTrackIndex, playlist]);
 
   const handleAudioEnded = () => {
     if (loop) {
@@ -88,7 +88,7 @@ const Home = () => {
           You must be logged in to access this website.
         </h1>
         <button
-          onClick={() => signIn("discord")}
+          onClick={() => void signIn("discord")}
           className="rounded-md bg-blue-600 px-4 py-2 text-white"
         >
           Sign in with Discord
