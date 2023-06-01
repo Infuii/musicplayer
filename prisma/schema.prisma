@@ -66,11 +66,3 @@ model VerificationToken {
 
     @@unique([identifier, token])
 }
-
-model Playlist {
-    id     String @id @default(cuid())
-    name   String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId String
-    tracks String
-}

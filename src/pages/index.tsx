@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReactAudioPlayer from "react-audio-player";
-import { signIn, useSession } from "next-auth/react";
-import { api } from "~/utils/api";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 type Track = {
   title: string;
@@ -9,28 +8,20 @@ type Track = {
 };
 
 const Home = () => {
-  const [music] = useState<Track[]>([
+  const [music, setMusic] = useState<Track[]>([
     { title: "Heroes", src: "./heroes.mp3" },
     { title: "On", src: "./on.mp3" },
     { title: "Hellcat", src: "./hellcat.mp3" },
     { title: "SkyHigh", src: "./skyhigh.mp3" },
     { title: "WhyWeLose", src: "./welose.mp3" },
-  ] as Track[]);
+  ]);
 
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(-1);
-  const [playlist, setPlaylist] = useState<Track[]>([] as Track[]);
-  const [filteredPlaylist, setFilteredPlaylist] = useState<Track[]>(
-    [] as Track[]
-  );
+  const [playlist, setPlaylist] = useState<Track[]>([]);
+  const [filteredPlaylist, setFilteredPlaylist] = useState<Track[]>([]);
   const [playerReady, setPlayerReady] = useState<boolean>(false);
   const [loop, setLoop] = useState<boolean>(false);
-  const { data: session } = useSession();
-
-  const { data: user } = api.user.getUserById.useQuery({
-    id: "cli6imzxr0000zpqezos3vidm",
-  });
-
-  console.log(user);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const filteredPlaylist = playlist.reduce((acc: Track[], current: Track) => {
@@ -43,7 +34,7 @@ const Home = () => {
 
   const handleAudioEnded = () => {
     if (loop) {
-      return playlist[currentTrackIndex]?.src;
+      return filteredPlaylist[currentTrackIndex]?.src;
     }
 
     setCurrentTrackIndex((prevIndex) => {
@@ -88,6 +79,11 @@ const Home = () => {
     setPlayerReady(true);
   };
 
+  const handleShufflePlaylist = () => {
+    setFilteredPlaylist([...filteredPlaylist].sort(() => Math.random() - 0.5));
+    setCurrentTrackIndex(0);
+  };
+
   if (!session) {
     return (
       <div className="mx-auto max-w-xl">
@@ -110,7 +106,11 @@ const Home = () => {
       <br />
       <div className="fixed bottom-0 left-0 w-full bg-black p-4">
         <ReactAudioPlayer
-          src={playerReady ? playlist[currentTrackIndex]?.src : "./heroes.mp3"}
+          src={
+            playerReady
+              ? filteredPlaylist[currentTrackIndex]?.src
+              : "./heroes.mp3"
+          }
           autoPlay
           controls
           onEnded={handleAudioEnded}
@@ -135,9 +135,7 @@ const Home = () => {
           </button>
           <button
             className="text-white"
-            onClick={() => {
-              playlist.sort(() => Math.random() - 0.5);
-            }}
+            onClick={handleShufflePlaylist}
             disabled={!playerReady}
           >
             &nbsp; &nbsp; Shuffle Playlist
@@ -162,7 +160,7 @@ const Home = () => {
         </div>
         <div className="mt-4 text-center text-white">
           {currentTrackIndex !== -1 && (
-            <p>Now Playing: {playlist[currentTrackIndex]?.title}</p>
+            <p>Now Playing: {filteredPlaylist[currentTrackIndex]?.title}</p>
           )}
         </div>
       </div>
