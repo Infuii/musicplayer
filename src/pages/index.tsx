@@ -5,15 +5,16 @@ import MusicPlayer from "../components/MusicPlayer";
 type Track = {
   title: string;
   src: string;
+  image: string;
 };
 
 const Home = () => {
   const [music] = useState<Track[]>([
-    { title: "Heroes", src: "./heroes.mp3" },
-    { title: "On", src: "./on.mp3" },
-    { title: "Hellcat", src: "./hellcat.mp3" },
-    { title: "SkyHigh", src: "./skyhigh.mp3" },
-    { title: "WhyWeLose", src: "./welose.mp3" },
+    { title: "Heroes", src: "./heroes.mp3", image: "./heroes.jpg" },
+    { title: "On", src: "./on.mp3", image: "./on.jpg" },
+    { title: "Hellcat", src: "./hellcat.mp3", image: "./hellcat.jpg" },
+    { title: "SkyHigh", src: "./skyhigh.mp3", image: "./skyhigh.jpg" },
+    { title: "WhyWeLose", src: "./welose.mp3", image: "./whywelose.jpg" },
   ]);
 
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(-1);
@@ -28,7 +29,6 @@ const Home = () => {
       const response = await fetch("./api/playlist");
       const data = (await response.json()) as Track[];
       setPlaylist(data);
-      console.log("data:", data);
     };
 
     void fetchPlaylist();
@@ -110,11 +110,13 @@ const Home = () => {
     setFilteredPlaylist([...filteredPlaylist].sort(() => Math.random() - 0.5));
     setCurrentTrackIndex(0);
   };
+
   const deletePlaylist = () => {
     setPlaylist([]);
     setFilteredPlaylist([]);
     setCurrentTrackIndex(-1);
   };
+
   if (!session) {
     return (
       <div className="mx-auto max-w-xl">
@@ -152,7 +154,7 @@ const Home = () => {
         {music.map((track, index) => (
           <li key={track.src}>
             <button
-              className="mx-auto block bg-gray-800 px-2 px-3 py-3 text-2xl font-bold text-white hover:bg-gray-900"
+              className="mx-auto block bg-gray-800 px-2 px-3 py-3 text-2xl font-bold text-white transition-colors duration-300 ease-in-out hover:bg-gray-900"
               onClick={() => handleAddToPlaylist(track)}
             >
               {index + 1}. {track.title}
@@ -164,7 +166,7 @@ const Home = () => {
       <h3 className="text-center text-3xl font-bold text-white">My Playlist</h3>
       <br />
       <button
-        className="mx-auto block w-1/4 text-center text-2xl font-bold text-red-500"
+        className="mx-auto block w-1/4 text-center text-2xl font-bold text-red-500 transition-colors duration-300 ease-in-out hover:text-red-600"
         onClick={() => deletePlaylist()}
       >
         Delete Playlist
@@ -175,8 +177,8 @@ const Home = () => {
             <button
               className={
                 index === currentTrackIndex
-                  ? "mx-auto block w-1/2 border-none bg-transparent font-bold text-blue-500"
-                  : "mx-auto block w-1/2 border-none bg-transparent font-bold text-white"
+                  ? "mx-auto block w-1/2 border-none bg-transparent font-bold text-blue-500 transition-colors duration-300 ease-in-out"
+                  : "mx-auto block w-1/2 border-none bg-transparent font-bold text-white transition-colors duration-300 ease-in-out hover:text-blue-500"
               }
               onClick={() => setCurrentTrackIndex(index)}
             >
@@ -186,6 +188,15 @@ const Home = () => {
                 <span className="ml-2 text-red-500">Now Playing</span>
               )}
             </button>
+            {index === currentTrackIndex && (
+              <div className="text-center">
+                {/* <img
+                  src={track.image}
+                  alt={track.title}
+                  className="mx-auto my-4 w-1/4"
+                /> */}
+              </div>
+            )}
           </li>
         ))}
       </ul>

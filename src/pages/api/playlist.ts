@@ -23,7 +23,9 @@ const playlistHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       title: track.title,
       src: track.src,
     }));
-    
+    await prisma.track.deleteMany({
+      where: { id: "clidn7f0f00009anc5b7u3uxp" },
+    });
     const playlist = await prisma.playlist.upsert({
       where: { id: "clidn7f0f00009anc5b7u3uxp" },
       update: {

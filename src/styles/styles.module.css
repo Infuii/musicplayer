@@ -1,0 +1,14 @@
+.audio-player::-webkit-slider-runnable-track {
+    background-color: transparent;
+  }
+  
+  .audio-player::-moz-range-track {
+    background-color: transparent;
+  }
+  
+  .audio-player::-ms-track {
+    background-color: transparent;
+  }
+  .audio-player {
+    background-color: #FF00FF
+  }

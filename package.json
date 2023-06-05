@@ -23,6 +23,7 @@
     "react": "18.2.0",
     "react-audio-player": "^0.17.0",
     "react-dom": "18.2.0",
+    "sass": "^1.62.1",
     "superjson": "1.12.2",
     "tailwind-styled-components": "^2.2.0",
     "zod": "^3.21.4"
