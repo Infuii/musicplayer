@@ -77,9 +77,9 @@ model Playlist {
 }
 
 model Track {
-  id         String    @id @default(cuid())
-  src        String
-  title      String
-  Playlist   Playlist? @relation(fields: [playlistId], references: [id])
-  playlistId String?
+  id        String     @id @default(cuid())
+  src       String
+  title     String
+  image     String     @default("https://via.placeholder.com/150")
+  Playlists Playlist[]
 }
