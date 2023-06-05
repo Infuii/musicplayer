@@ -1,6 +1,5 @@
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
-
 const playlistHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   const prisma = new PrismaClient();
   if (req.method === "GET") {
@@ -17,7 +16,7 @@ const playlistHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     res.status(200).json(playlist?.tracks ?? []);
   } else if (req.method === "POST") {
     const userId = req.query.userId as string;
-    const tracks = JSON.parse(req.body.toString());
+    const tracks = JSON.parse(req.body);
 
     const formattedTracks = tracks.map((track: { title: string; src: string }) => ({
       title: track.title,
