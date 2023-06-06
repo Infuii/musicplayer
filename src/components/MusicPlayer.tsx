@@ -1,8 +1,11 @@
 import React from "react";
 import ReactAudioPlayer from "react-audio-player";
-import "../styles/styles.module.css";
+import styles from "../styles/styles.module.css";
 import "font-awesome/css/font-awesome.min.css";
-
+import AudioPlayer from "react-h5-audio-player";
+import "react-h5-audio-player/lib/styles.css";
+import { FaArrowCircleRight, FaArrowLeft, FaRandom } from "react-icons/fa";
+import { BiRepeat } from "react-icons/bi";
 type Track = {
   title: string;
   src: string;
@@ -38,18 +41,20 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
 }) => {
   return (
     <div className="main fixed bottom-0 left-0 w-full bg-black p-4">
-      <ReactAudioPlayer
+      <AudioPlayer
         src={
           playerReady
             ? filteredPlaylist[currentTrackIndex]?.src
             : "./heroes.mp3"
         }
         autoPlay
-        controls
         onEnded={handleAudioEnded}
         onCanPlay={handlePlayerReady}
-        className="audio-player mb-4 w-full bg-black"
-        style={{}}
+        layout="stacked"
+        style={{
+          background: "black",
+          color: "white",
+        }}
       />
       <div></div>
       <div className="flex items-center justify-between">
@@ -61,7 +66,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                 alt={filteredPlaylist[currentTrackIndex]?.title}
                 className="relative h-20 w-20"
               />
-              <div className="ml-2">
+              <div className="ml-3">
                 <p className="text-sm text-gray-400">Artist: NCS</p>
                 <p className="text-sm text-gray-400">
                   {filteredPlaylist[currentTrackIndex]?.title}
@@ -77,55 +82,35 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             </div>
           )}
         </div>
+        {currentTrackIndex !== -1 && (
+          <div className="text-center text-white">
+            <p className="text-xl">
+              Now Playing: {filteredPlaylist[currentTrackIndex]?.title}
+            </p>
+          </div>
+        )}
 
-        <div className="flex justify-center space-x-8">
+        <div className="flex justify-center space-x-8 text-2xl">
           <button
             className="border-none bg-transparent font-bold text-white"
             onClick={handlePreviousTrack}
             disabled={!playerReady}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              className="h-6 w-6"
-            >
-              <path
-                className="fill-current"
-                d="M12 2 L2 12 L12 22 L13.5 20.5 L6.5 13.5 L22 13.5 L22 10.5 L6.5 10.5 L13.5 3.5 Z"
-              ></path>
-            </svg>
+            <FaArrowLeft />
           </button>
           <button
             className="border-none bg-transparent font-bold text-white"
             onClick={handleAudioEnded}
             disabled={!playerReady}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              className="h-6 w-6"
-            >
-              <path
-                className="fill-current"
-                d="M12 2 L2 12 L12 22 L13.5 20.5 L6.5 13.5 L22 13.5 L22 10.5 L6.5 10.5 L13.5 3.5 Z"
-              ></path>
-            </svg>
+            <FaArrowLeft className="rotate-180" />
           </button>
           <button
             className="border-none bg-transparent font-bold text-white"
             onClick={handleShufflePlaylist}
             disabled={!playerReady}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              className="h-6 w-6"
-            >
-              <path
-                className="fill-current"
-                d="M5 4 L3 6 L9 12 L3 18 L5 20 L11 14 L13 16 L15.5 13.5 L21 19 L23 17 L17.5 11.5 L23 6 L21 4 Z"
-              ></path>
-            </svg>
+            <FaRandom />
           </button>
           {loop ? (
             <button
@@ -133,16 +118,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
               onClick={handleTrackUnLoop}
               disabled={!playerReady}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                className="h-6 w-6"
-              >
-                <path
-                  className="fill-current"
-                  d="M5 4 L3 6 L9 12 L3 18 L5 20 L11 14 L13 16 L15.5 13.5 L21 19 L23 17 L17.5 11.5 L23 6 L21 4 Z"
-                ></path>
-              </svg>
+              <FaArrowCircleRight />
             </button>
           ) : (
             <button
@@ -150,27 +126,11 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
               onClick={handleTrackLoop}
               disabled={!playerReady}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                className="h-6 w-6"
-              >
-                <path
-                  className="fill-current"
-                  d="M5 4 L3 6 L9 12 L3 18 L5 20 L11 14 L13 16 L15.5 13.5 L21 19 L23 17 L17.5 11.5 L23 6 L21 4 Z"
-                ></path>
-              </svg>
+              <BiRepeat />
             </button>
           )}
         </div>
       </div>
-      {currentTrackIndex !== -1 && (
-        <div className="mt-1 text-center text-white">
-          <p className="text-xl">
-            Now Playing: {filteredPlaylist[currentTrackIndex]?.title}
-          </p>
-        </div>
-      )}
     </div>
   );
 };

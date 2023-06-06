@@ -3,6 +3,8 @@ import { signIn, useSession } from "next-auth/react";
 import MusicPlayer from "../components/MusicPlayer";
 import { api } from "~/utils/api";
 import { Track } from "@prisma/client";
+import AudioPlayer from "react-h5-audio-player";
+import "react-h5-audio-player/lib/styles.css";
 
 const Home = () => {
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(-1);
@@ -155,6 +157,38 @@ const Home = () => {
       <h3 className="py-8 text-center text-4xl font-bold text-white">
         React Music Player
       </h3>
+      <div className="mx-auto w-full flex-col">
+        <ul>
+          {currentTracks.map((track, index) => (
+            <li key={index}>
+              <button
+                className={
+                  index === currentTrackIndex
+                    ? "mx-auto block w-1/2 border-none bg-transparent font-bold text-blue-500 transition-colors duration-300 ease-in-out"
+                    : "mx-auto block w-1/2 border-none bg-transparent font-bold text-white transition-colors duration-300 ease-in-out hover:text-blue-500"
+                }
+                onClick={() => setCurrentTrackIndex(index)}
+              >
+                {index + 1} &nbsp;{" "}
+                <img className="h-5 w-5" src={track.image}></img> &times; &nbsp;
+                {track.title}
+                {index === currentTrackIndex && (
+                  <span className="ml-2 text-red-500">Now Playing</span>
+                )}
+              </button>
+              {index === currentTrackIndex && (
+                <div className="text-center">
+                  {/* <img
+                  src={track.image}
+                  alt={track.title}
+                  className="mx-auto my-4 w-1/4"
+                /> */}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
       <MusicPlayer
         filteredPlaylist={filteredPlaylist}
         currentTrackIndex={currentTrackIndex}
@@ -171,7 +205,7 @@ const Home = () => {
         {music.map((track, index) => (
           <li key={track.src}>
             <button
-              className="mx-auto block bg-gray-800 px-2 px-3 py-3 text-2xl font-bold text-white transition-colors duration-300 ease-in-out hover:bg-gray-900"
+              className="mx-auto block bg-gray-800 px-3 py-3 text-2xl font-bold text-white transition-colors duration-300 ease-in-out hover:bg-gray-900"
               onClick={() => handleAddToPlaylist(track)}
             >
               {index + 1}. {track.title}
@@ -194,7 +228,7 @@ const Home = () => {
             );
           }
         }}
-        className="mx-auto block bg-gray-800 px-2 px-3 py-3 text-2xl font-bold text-white transition-colors duration-300 ease-in-out hover:bg-gray-900"
+        className="mx-auto block bg-gray-800 px-3 py-3 text-2xl font-bold text-white transition-colors duration-300 ease-in-out hover:bg-gray-900"
       >
         Create Playlist
       </button>
@@ -219,35 +253,6 @@ const Home = () => {
       >
         Delete Playlist
       </button>
-      <ul>
-        {currentTracks.map((track, index) => (
-          <li key={index}>
-            <button
-              className={
-                index === currentTrackIndex
-                  ? "mx-auto block w-1/2 border-none bg-transparent font-bold text-blue-500 transition-colors duration-300 ease-in-out"
-                  : "mx-auto block w-1/2 border-none bg-transparent font-bold text-white transition-colors duration-300 ease-in-out hover:text-blue-500"
-              }
-              onClick={() => setCurrentTrackIndex(index)}
-            >
-              {index + 1} &nbsp; &times; &nbsp;
-              {track.title}
-              {index === currentTrackIndex && (
-                <span className="ml-2 text-red-500">Now Playing</span>
-              )}
-            </button>
-            {index === currentTrackIndex && (
-              <div className="text-center">
-                {/* <img
-                  src={track.image}
-                  alt={track.title}
-                  className="mx-auto my-4 w-1/4"
-                /> */}
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 };

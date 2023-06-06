@@ -1,14 +1,75 @@
-.audio-player::-webkit-slider-runnable-track {
-    background-color: transparent;
-  }
-  
-  .audio-player::-moz-range-track {
-    background-color: transparent;
-  }
-  
-  .audio-player::-ms-track {
-    background-color: transparent;
-  }
-  .audio-player {
-    background-color: #FF00FF
-  }
+.audioplayer {
+  width: 300px;
+  background-color: #282828;
+  border-radius: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.audioplayer audio {
+  width: 100%;
+}
+
+.audioplayer audio::-webkit-media-controls-panel {
+  background-color: #282828;
+  border-radius: 5px;
+}
+
+.audioplayer audio::-webkit-media-controls-play-button {
+  background-color: #1db954;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+}
+
+.audioplayer audio::-webkit-media-controls-play-button:hover {
+  background-color: #168f3f;
+}
+
+.audioplayer audio::-webkit-media-controls-play-button:before {
+  content: "";
+  display: inline-block;
+  border-style: solid;
+  border-width: 0 12px 0 0;
+  border-color: transparent;
+  width: 0;
+  height: 0;
+  vertical-align: top;
+  margin-left: 7px;
+  margin-top: 6px;
+  transition: border-width 0.15s;
+}
+
+.audioplayer audio::-webkit-media-controls-play-button:hover:before {
+  border-width: 6px 0 6px 12px;
+}
+
+.audioplayer audio::-webkit-media-controls-time-remaining-display,
+.audioplayer audio::-webkit-media-controls-time-remaining-display,
+.audioplayer audio::-webkit-media-controls-timeline,
+.audioplayer audio::-webkit-media-controls-current-time-display {
+  color: #fff;
+}
+
+.audioplayer audio::-webkit-media-controls-timeline {
+  background-color: #535353;
+  height: 4px;
+  border-radius: 2px;
+}
+
+.audioplayer
+  audio::-webkit-media-controls-timeline::-webkit-media-controls-timeline-container {
+  background-color: #1db954;
+  height: 100%;
+}
+
+.audioplayer
+  audio::-webkit-media-controls-timeline::-webkit-media-controls-timeline-container:hover {
+  background-color: #168f3f;
+}
+
+@rhap_theme-color: #868686;
+@rhap_background-color: #ff00ff;
+@rhap_bar-color: #ff00ff;
+@rhap_time-color: #333;
+@rhap_font-family: inherit;
