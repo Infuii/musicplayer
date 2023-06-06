@@ -16,6 +16,7 @@ const playlistHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     res.status(200).json(playlist?.tracks ?? []);
   } else if (req.method === "POST") {
     const userId = req.query.userId as string;
+
     const tracks = JSON.parse(req.body);
 
     const formattedTracks = tracks.map((track: { title: string; src: string }) => ({
@@ -39,6 +40,7 @@ const playlistHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     res.status(200).json(playlist.tracks);
+
   } else {
     res.status(405).json({ message: "Method Not Allowed" });
   }

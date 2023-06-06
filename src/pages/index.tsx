@@ -1,53 +1,45 @@
 import React, { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import MusicPlayer from "../components/MusicPlayer";
-
-type Track = {
-  title: string;
-  src: string;
-  image: string;
-};
+import { api } from "~/utils/api";
+import { Track } from "@prisma/client";
 
 const Home = () => {
-  const [music] = useState<Track[]>([
-    { title: "Heroes", src: "./heroes.mp3", image: "./heroes.jpg" },
-    { title: "On", src: "./on.mp3", image: "./on.jpg" },
-    { title: "Hellcat", src: "./hellcat.mp3", image: "./hellcat.jpg" },
-    { title: "SkyHigh", src: "./skyhigh.mp3", image: "./skyhigh.jpg" },
-    { title: "WhyWeLose", src: "./welose.mp3", image: "./whywelose.jpg" },
-  ]);
-
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(-1);
   const [playlist, setPlaylist] = useState<Track[]>([]);
   const [filteredPlaylist, setFilteredPlaylist] = useState<Track[]>([]);
   const [playerReady, setPlayerReady] = useState<boolean>(false);
   const [loop, setLoop] = useState<boolean>(false);
   const { data: session } = useSession();
+  const [selectedPlaylist, setSelectedPlaylist] = useState<number>(0);
+
+  const playlists = api.playlist.getAllPlaylists.useQuery();
+  const music = api.playlist.getAllTracks.useQuery().data || [];
+  const currentTracks = playlists.data?.[selectedPlaylist]?.tracks || [];
+  // useEffect(() => {
+  //   const fetchPlaylist = async () => {
+  //     const response = await fetch("./api/playlist");
+  //     const data = (await response.json()) as Track[];
+  //     setPlaylist(data);
+  //   };
+
+  //   void fetchPlaylist();
+  // }, []);
 
   useEffect(() => {
-    const fetchPlaylist = async () => {
-      const response = await fetch("./api/playlist");
-      const data = (await response.json()) as Track[];
-      setPlaylist(data);
-    };
+    setFilteredPlaylist(playlists.data?.[selectedPlaylist]?.tracks || []);
+  }, [playlists, selectedPlaylist]);
 
-    void fetchPlaylist();
-  }, []);
+  // useEffect(() => {
+  //   const savePlaylist = async () => {
+  //     await fetch("./api/playlist", {
+  //       method: "POST",
+  //       body: JSON.stringify(playlist),
+  //     });
+  //   };
 
-  useEffect(() => {
-    setFilteredPlaylist(playlist);
-  }, [playlist]);
-
-  useEffect(() => {
-    const savePlaylist = async () => {
-      await fetch("./api/playlist", {
-        method: "POST",
-        body: JSON.stringify(playlist),
-      });
-    };
-
-    void savePlaylist();
-  }, [playlist]);
+  //   void savePlaylist();
+  // }, [playlist]);
 
   const handleAudioEnded = () => {
     if (loop) {
@@ -64,6 +56,8 @@ const Home = () => {
     });
   };
 
+  const createNewPlaylist = api.playlist.createPlaylist.useMutation();
+
   const handlePreviousTrack = () => {
     setCurrentTrackIndex((prevIndex) => {
       const nextIndex = prevIndex - 1;
@@ -75,23 +69,35 @@ const Home = () => {
     });
   };
 
-  const handleAddToPlaylist = (track: Track) => {
-    if (track.title !== "Heroes") {
-      setPlaylist((prevPlaylist) => {
-        const trackExists = prevPlaylist.some(
-          (item) => item.title === track.title
-        );
-        if (!trackExists) {
-          return [...prevPlaylist, track];
-        } else {
-          return prevPlaylist;
-        }
-      });
+  const addTrack = api.playlist.addTrack.useMutation();
 
-      if (currentTrackIndex === -1) {
-        setCurrentTrackIndex(0);
+  const handleAddToPlaylist = (track: Track) => {
+    // if (track.title !== "Heroes") {
+    //   setPlaylist((prevPlaylist) => {
+    //     const trackExists = prevPlaylist.some(
+    //       (item) => item.title === track.title
+    //     );
+    //     if (!trackExists) {
+    //       return [...prevPlaylist, track];
+    //     } else {
+    //       return prevPlaylist;
+    //     }
+    //   });
+
+    //   if (currentTrackIndex === -1) {
+    //     setCurrentTrackIndex(0);
+    //   }
+    // }
+
+    addTrack.mutate(
+      {
+        trackId: track.id,
+        playlistId: playlists.data?.[selectedPlaylist]?.id as string,
+      },
+      {
+        onSuccess: () => void playlists.refetch(),
       }
-    }
+    );
   };
 
   const handleTrackLoop = () => {
@@ -111,7 +117,18 @@ const Home = () => {
     setCurrentTrackIndex(0);
   };
 
-  const deletePlaylist = () => {
+  const deletePlaylist = api.playlist.deletePlaylist.useMutation();
+
+  const handleDeletePlaylist = () => {
+    deletePlaylist.mutate(
+      {
+        playlistId: playlists.data?.[selectedPlaylist]?.id as string,
+      },
+      {
+        onSuccess: () => void playlists.refetch(),
+      }
+    );
+
     setPlaylist([]);
     setFilteredPlaylist([]);
     setCurrentTrackIndex(-1);
@@ -163,16 +180,47 @@ const Home = () => {
         ))}
       </ul>
       <br />
+      <button
+        onClick={() => {
+          const name = prompt("Enter playlist name");
+          if (name) {
+            createNewPlaylist.mutate(
+              {
+                name,
+              },
+              {
+                onSuccess: () => void playlists.refetch(),
+              }
+            );
+          }
+        }}
+        className="mx-auto block bg-gray-800 px-2 px-3 py-3 text-2xl font-bold text-white transition-colors duration-300 ease-in-out hover:bg-gray-900"
+      >
+        Create Playlist
+      </button>
+      <select
+        className="mx-auto block w-1/4 border-none bg-transparent font-bold text-white transition-colors duration-300 ease-in-out hover:text-blue-500"
+        onChange={(e) => setSelectedPlaylist(parseInt(e.target.value))}
+      >
+        {playlists.data?.map((playlist, index) => (
+          <option key={index} value={index}>
+            {playlist.name}
+          </option>
+        ))}
+      </select>
+      <br />
       <h3 className="text-center text-3xl font-bold text-white">My Playlist</h3>
+      {/* playlist selector dropdown */}
+
       <br />
       <button
         className="mx-auto block w-1/4 text-center text-2xl font-bold text-red-500 transition-colors duration-300 ease-in-out hover:text-red-600"
-        onClick={() => deletePlaylist()}
+        onClick={() => handleDeletePlaylist()}
       >
         Delete Playlist
       </button>
       <ul>
-        {filteredPlaylist.map((track, index) => (
+        {currentTracks.map((track, index) => (
           <li key={index}>
             <button
               className={
