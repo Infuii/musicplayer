@@ -1,9 +1,8 @@
-import { Playlist, Track } from "@prisma/client";
+import { type Playlist, type Track } from "@prisma/client";
 import { z } from "zod";
 
 import {
   createTRPCRouter,
-  publicProcedure,
   protectedProcedure,
 } from "~/server/api/trpc";
 

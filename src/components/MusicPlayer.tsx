@@ -1,6 +1,6 @@
 import React from "react";
-import ReactAudioPlayer from "react-audio-player";
-import styles from "../styles/styles.module.css";
+// import ReactAudioPlayer from "react-audio-player";
+// import styles from "../styles/styles.module.css";
 import "font-awesome/css/font-awesome.min.css";
 import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
@@ -10,6 +10,7 @@ type Track = {
   title: string;
   src: string;
   image: string;
+  duration: string;
 };
 
 type MusicPlayerProps = {
@@ -54,7 +55,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         style={{
           background: "black",
           color: "white",
-  
         }}
       />
       <div></div>

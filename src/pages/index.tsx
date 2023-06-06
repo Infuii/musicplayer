@@ -5,6 +5,9 @@ import { api } from "~/utils/api";
 import { Track } from "@prisma/client";
 import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
+import styles from "../styles/styles.module.css";
+import ReactModal from "react-modal";
+import { Fa500Px, FaHamburger, FaTrash } from "react-icons/fa";
 
 const Home = () => {
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(-1);
@@ -14,34 +17,19 @@ const Home = () => {
   const [loop, setLoop] = useState<boolean>(false);
   const { data: session } = useSession();
   const [selectedPlaylist, setSelectedPlaylist] = useState<number>(0);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedSong, setSelectedSong] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   const playlists = api.playlist.getAllPlaylists.useQuery();
   const music = api.playlist.getAllTracks.useQuery().data || [];
   const currentTracks = playlists.data?.[selectedPlaylist]?.tracks || [];
-  // useEffect(() => {
-  //   const fetchPlaylist = async () => {
-  //     const response = await fetch("./api/playlist");
-  //     const data = (await response.json()) as Track[];
-  //     setPlaylist(data);
-  //   };
-
-  //   void fetchPlaylist();
-  // }, []);
 
   useEffect(() => {
+    console.log(filteredPlaylist);
     setFilteredPlaylist(playlists.data?.[selectedPlaylist]?.tracks || []);
   }, [playlists, selectedPlaylist]);
-
-  // useEffect(() => {
-  //   const savePlaylist = async () => {
-  //     await fetch("./api/playlist", {
-  //       method: "POST",
-  //       body: JSON.stringify(playlist),
-  //     });
-  //   };
-
-  //   void savePlaylist();
-  // }, [playlist]);
 
   const handleAudioEnded = () => {
     if (loop) {
@@ -74,26 +62,13 @@ const Home = () => {
   const addTrack = api.playlist.addTrack.useMutation();
 
   const handleAddToPlaylist = (track: Track) => {
-    // if (track.title !== "Heroes") {
-    //   setPlaylist((prevPlaylist) => {
-    //     const trackExists = prevPlaylist.some(
-    //       (item) => item.title === track.title
-    //     );
-    //     if (!trackExists) {
-    //       return [...prevPlaylist, track];
-    //     } else {
-    //       return prevPlaylist;
-    //     }
-    //   });
-
-    //   if (currentTrackIndex === -1) {
-    //     setCurrentTrackIndex(0);
-    //   }
-    // }
-
+    setSearch("");
+    const filteredTracks = music.filter((song) =>
+      song.title.toLowerCase().includes(search.toLowerCase())
+    );
     addTrack.mutate(
       {
-        trackId: track.id,
+        trackId: filteredTracks[0].id,
         playlistId: playlists.data?.[selectedPlaylist]?.id as string,
       },
       {
@@ -115,7 +90,8 @@ const Home = () => {
   };
 
   const handleShufflePlaylist = () => {
-    setFilteredPlaylist([...filteredPlaylist].sort(() => Math.random() - 0.5));
+    const shuffledTracks = [...currentTracks].sort(() => Math.random() - 0.5);
+    setFilteredPlaylist(shuffledTracks);
     setCurrentTrackIndex(0);
   };
 
@@ -135,7 +111,6 @@ const Home = () => {
     setFilteredPlaylist([]);
     setCurrentTrackIndex(-1);
   };
-
   if (!session) {
     return (
       <div className="mx-auto max-w-xl">
@@ -154,40 +129,60 @@ const Home = () => {
 
   return (
     <div className="main min-h-screen bg-gradient-to-r from-gray-900 to-gray-800 pb-16">
+      <button
+        className="absolute right-0 top-0 m-4 text-white"
+        onClick={() => setModalIsOpen(true)}
+      >
+        Open Track List
+      </button>
       <h3 className="py-8 text-center text-4xl font-bold text-white">
         React Music Player
       </h3>
-      <div className="mx-auto w-full flex-col">
-        <ul>
-          {currentTracks.map((track, index) => (
-            <li key={index}>
-              <button
-                className={
-                  index === currentTrackIndex
-                    ? "mx-auto block w-1/2 border-none bg-transparent font-bold text-blue-500 transition-colors duration-300 ease-in-out"
-                    : "mx-auto block w-1/2 border-none bg-transparent font-bold text-white transition-colors duration-300 ease-in-out hover:text-blue-500"
-                }
-                onClick={() => setCurrentTrackIndex(index)}
-              >
-                {index + 1} &nbsp;
-                <img className="h-5 w-5" src={track.image}></img> &times; &nbsp;
-                {track.title}
-                {index === currentTrackIndex && (
-                  <span className="ml-2 text-red-500">Now Playing</span>
+      <br />
+      <h3 className="text-center text-3xl font-bold text-white">My Playlist</h3>
+      {/* playlist selector dropdown */}
+
+      <br />
+      <button
+        className="mx-auto block w-1/4 text-center text-2xl font-bold text-red-500 transition-colors duration-300 ease-in-out hover:text-red-600"
+        onClick={() => handleDeletePlaylist()}
+      >
+        Delete Playlist
+      </button>
+      <br />
+      <div className="mx-auto w-full">
+        {currentTracks.map((track, index) => (
+          <div
+            key={index}
+            className={`flex items-center border-b border-gray-700 bg-gray-800 px-8 py-4 transition-colors duration-300 ease-in-out hover:bg-gray-900 ${
+              currentTrackIndex === index ? "bg-blue-500" : ""
+            }`}
+            onClick={() => setCurrentTrackIndex(index)}
+          >
+            <img
+              src={track.image}
+              alt={track.title}
+              className="mr-4 h-10 w-10"
+            />
+            <div className="flex-grow">
+              <div className="text-white">
+                {track.title}{" "}
+                {currentTrackIndex === index && (
+                  <span className="text-xs text-green-500">
+                    (Currently Playing)
+                  </span>
                 )}
-              </button>
-              {index === currentTrackIndex && (
-                <div className="text-center">
-                  {/* <img
-                  src={track.image}
-                  alt={track.title}
-                  className="mx-auto my-4 w-1/4"
-                /> */}
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
+              </div>
+              <div className="text-sm text-gray-400">No Copyright Sounds</div>
+            </div>
+            <div className="mr-8 text-sm text-gray-400">ALBUM</div>
+            <div className="text-sm text-gray-400">{track.playlistId}</div>
+            <div className="text-sm text-gray-400">
+              {" "}
+              &nbsp; {track.duration}
+            </div>
+          </div>
+        ))}
       </div>
       <MusicPlayer
         filteredPlaylist={filteredPlaylist}
@@ -201,7 +196,7 @@ const Home = () => {
         handlePlayerReady={handlePlayerReady}
         handleShufflePlaylist={handleShufflePlaylist}
       />
-      <ul className="mt-8">
+      {/* <ul className="mt-8">
         {music.map((track, index) => (
           <li key={track.src}>
             <button
@@ -212,7 +207,7 @@ const Home = () => {
             </button>
           </li>
         ))}
-      </ul>
+      </ul> */}
       <br />
       <button
         onClick={() => {
@@ -232,27 +227,94 @@ const Home = () => {
       >
         Create Playlist
       </button>
-      <select
-        className="mx-auto block w-1/4 border-none bg-transparent font-bold text-white transition-colors duration-300 ease-in-out hover:text-blue-500"
-        onChange={(e) => setSelectedPlaylist(parseInt(e.target.value))}
+      <ReactModal
+        isOpen={modalIsOpen}
+        onRequestClose={() => setModalIsOpen(false)}
+        className={styles.modal}
+        overlayClassName={styles.overlay}
       >
-        {playlists.data?.map((playlist, index) => (
-          <option key={index} value={index}>
-            {playlist.name}
-          </option>
-        ))}
-      </select>
+        <h2 className="mb-4 text-center text-3xl font-bold">Select a Song</h2>
+        <input
+          type="text"
+          placeholder="Search for a song"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="mb-4 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2"
+          onAbort={() => setSearch("")}
+          onBlur={() => setSearch("")}
+        />
+        <ul className="text-center">
+          {music
+            .filter((song) =>
+              song.title.toLowerCase().includes(search.toLowerCase())
+            )
+            .map((track, index) => (
+              <li key={track.src}>
+                <button
+                  className="mb-2 text-center text-white"
+                  onClick={() => handleAddToPlaylist(track)}
+                >
+                  {track.title}
+                </button>
+              </li>
+            ))}
+        </ul>
+      </ReactModal>
       <br />
-      <h3 className="text-center text-3xl font-bold text-white">My Playlist</h3>
-      {/* playlist selector dropdown */}
 
-      <br />
       <button
-        className="mx-auto block w-1/4 text-center text-2xl font-bold text-red-500 transition-colors duration-300 ease-in-out hover:text-red-600"
-        onClick={() => handleDeletePlaylist()}
+        className="absolute left-4 top-4 text-white"
+        onClick={() => setSidebarOpen(true)}
       >
-        Delete Playlist
+        View All Playlists ( {playlists.data?.length} )
       </button>
+      <div
+        className={`fixed left-0 top-0 h-screen w-1/4 transform bg-gray-800 text-white transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <h3 className="py-8 text-center text-4xl font-bold text-white">
+          Playlist Manager
+        </h3>
+        <ul className="mx-8">
+          {playlists.data?.map((playlist, index) => (
+            <li
+              key={index}
+              className={`my-2 cursor-pointer rounded-md p-4 transition-colors duration-300 ease-in-out ${
+                selectedPlaylist === index
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }`}
+              onClick={() => setSelectedPlaylist(index)}
+            >
+              {playlist.name}
+              <button
+                className="float-right text-red-500 "
+                onClick={() => handleDeletePlaylist()}
+              >
+                <FaTrash />
+              </button>
+            </li>
+          ))}
+        </ul>
+        <h3>
+          <button
+            className="mx-auto block bg-gray-800 px-3 py-3 text-2xl font-bold text-white transition-colors duration-300 ease-in-out hover:bg-gray-900"
+            onClick={() => setSidebarOpen(false)}
+          >
+            Close Sidebar
+          </button>
+        </h3>
+      </div>
+
+      {selectedSong && (
+        <div>
+          <h3 className="mt-4 text-center text-2xl font-bold">
+            Selected Song:
+          </h3>
+          <div className="text-center text-white">{selectedSong.title}</div>
+        </div>
+      )}
     </div>
   );
 };

@@ -82,4 +82,6 @@ model Track {
   title     String
   image     String     @default("https://via.placeholder.com/150")
   Playlists Playlist[]
+  createdAt DateTime   @default(now())
+  duration String
 }
