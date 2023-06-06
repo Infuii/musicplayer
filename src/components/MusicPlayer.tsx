@@ -54,6 +54,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         style={{
           background: "black",
           color: "white",
+  
         }}
       />
       <div></div>

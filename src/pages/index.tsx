@@ -169,7 +169,7 @@ const Home = () => {
                 }
                 onClick={() => setCurrentTrackIndex(index)}
               >
-                {index + 1} &nbsp;{" "}
+                {index + 1} &nbsp;
                 <img className="h-5 w-5" src={track.image}></img> &times; &nbsp;
                 {track.title}
                 {index === currentTrackIndex && (
