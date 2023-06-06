@@ -1,6 +1,8 @@
 import React from "react";
 import ReactAudioPlayer from "react-audio-player";
 import "../styles/styles.module.css";
+import "font-awesome/css/font-awesome.min.css";
+
 type Track = {
   title: string;
   src: string;
@@ -19,7 +21,9 @@ type MusicPlayerProps = {
   handleTrackLoop: () => void;
   handlePlayerReady: () => void;
 };
-
+const handleFavorite = () => {
+  console.log("favorite");
+};
 const MusicPlayer: React.FC<MusicPlayerProps> = ({
   playerReady,
   filteredPlaylist,
@@ -47,6 +51,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         className="audio-player mb-4 w-full bg-black"
         style={{}}
       />
+      <div></div>
       <div className="flex items-center justify-between">
         <div className="flex text-white">
           {currentTrackIndex !== -1 && (
@@ -61,6 +66,13 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                 <p className="text-sm text-gray-400">
                   {filteredPlaylist[currentTrackIndex]?.title}
                 </p>
+                <div>
+                  <i
+                    className="fa fa-heart text-white"
+                    style={{ color: "red" }}
+                    onClick={() => handleFavorite()}
+                  ></i>
+                </div>
               </div>
             </div>
           )}

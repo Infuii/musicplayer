@@ -83,3 +83,10 @@ model Track {
   image     String     @default("https://via.placeholder.com/150")
   Playlists Playlist[]
 }
+
+model Favorite {
+  id String @id @default(cuid())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  src String
+  title String
+}
