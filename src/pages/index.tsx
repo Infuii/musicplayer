@@ -211,6 +211,14 @@ const Home = () => {
         ))}
       </ul> */}
       <br />
+      {filteredPlaylist.length === 0 && (
+        <div className="mx-auto w-full">
+          <h3 className="text-center text-3xl font-bold text-white">
+            No songs here, so lonely...
+          </h3>
+        </div>
+      )}
+      <br />
       <button
         onClick={() => {
           const name = prompt("Enter playlist name");
