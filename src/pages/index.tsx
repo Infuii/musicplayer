@@ -7,7 +7,8 @@ import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 import styles from "../styles/styles.module.css";
 import ReactModal from "react-modal";
-import { Fa500Px, FaHamburger, FaTrash } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
+import toast, { Toaster } from "react-hot-toast";
 
 const Home = () => {
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(-1);
@@ -63,18 +64,17 @@ const Home = () => {
 
   const handleAddToPlaylist = (track: Track) => {
     setSearch("");
-    const filteredTracks = music.filter((song) =>
-      song.title.toLowerCase().includes(search.toLowerCase())
-    );
+    setModalIsOpen(false);
     addTrack.mutate(
       {
-        trackId: filteredTracks[0].id,
+        trackId: track.id,
         playlistId: playlists.data?.[selectedPlaylist]?.id as string,
       },
       {
         onSuccess: () => void playlists.refetch(),
       }
     );
+    toast.success("Track added to playlist successfully");
   };
 
   const handleTrackLoop = () => {
@@ -98,6 +98,7 @@ const Home = () => {
   const deletePlaylist = api.playlist.deletePlaylist.useMutation();
 
   const handleDeletePlaylist = () => {
+    toast.success("Playlist deleted successfully");
     deletePlaylist.mutate(
       {
         playlistId: playlists.data?.[selectedPlaylist]?.id as string,
@@ -110,6 +111,7 @@ const Home = () => {
     setPlaylist([]);
     setFilteredPlaylist([]);
     setCurrentTrackIndex(-1);
+    setPlayerReady(false);
   };
   if (!session) {
     return (
@@ -129,6 +131,7 @@ const Home = () => {
 
   return (
     <div className="main min-h-screen bg-gradient-to-r from-gray-900 to-gray-800 pb-16">
+      <Toaster />
       <button
         className="absolute right-0 top-0 m-4 text-white"
         onClick={() => setModalIsOpen(true)}
@@ -140,7 +143,6 @@ const Home = () => {
       </h3>
       <br />
       <h3 className="text-center text-3xl font-bold text-white">My Playlist</h3>
-      {/* playlist selector dropdown */}
 
       <br />
       <button
@@ -155,7 +157,7 @@ const Home = () => {
           <div
             key={index}
             className={`flex items-center border-b border-gray-700 bg-gray-800 px-8 py-4 transition-colors duration-300 ease-in-out hover:bg-gray-900 ${
-              currentTrackIndex === index ? "bg-blue-500" : ""
+              currentTrackIndex === index ? "bg-gray-600" : ""
             }`}
             onClick={() => setCurrentTrackIndex(index)}
           >
@@ -248,7 +250,7 @@ const Home = () => {
             .filter((song) =>
               song.title.toLowerCase().includes(search.toLowerCase())
             )
-            .map((track, index) => (
+            .map((track) => (
               <li key={track.src}>
                 <button
                   className="mb-2 text-center text-white"
@@ -312,7 +314,7 @@ const Home = () => {
           <h3 className="mt-4 text-center text-2xl font-bold">
             Selected Song:
           </h3>
-          <div className="text-center text-white">{selectedSong.title}</div>
+          <div className="text-center text-white"></div>
         </div>
       )}
     </div>

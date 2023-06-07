@@ -42,7 +42,9 @@ export const playlistRouter = createTRPCRouter({
         },
       });
 
-      if (playlistCount >= 3) throw new Error("You can only have 3 playlists");
+    if (playlistCount >= 3) {
+      throw new Error("You can only have 3 playlists");
+    }
 
       const playlist = await ctx.prisma.playlist.create({
         data: {

@@ -1,5 +1,6 @@
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
+
 const playlistHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   const prisma = new PrismaClient();
   if (req.method === "GET") {
