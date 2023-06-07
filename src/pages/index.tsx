@@ -68,7 +68,7 @@ const Home = () => {
     );
     addTrack.mutate(
       {
-        trackId: filteredTracks[0].id,
+        trackId: track.id,
         playlistId: playlists.data?.[selectedPlaylist]?.id as string,
       },
       {
